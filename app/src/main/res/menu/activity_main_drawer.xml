@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_avg_cost_per_claim"
+            android:icon="@drawable/ic_graph"
+            android:title="Avg. Cost Per Claim" />
+        <item
+            android:id="@+id/nav_customer_satisfaction"
+            android:icon="@drawable/ic_graph"
+            android:title="Customer Satisfaction" />
+        <item
+            android:id="@+id/nav_claims_ratio"
+            android:icon="@drawable/ic_graph"
+            android:title="Claims Ratio" />
+        <item
+            android:id="@+id/nav_top_brokers"
+            android:icon="@drawable/ic_graph"
+            android:title="Top Brokers" />
+        <item
+            android:id="@+id/nav_average_time_to_settle"
+            android:icon="@drawable/ic_graph"
+            android:title="Avg. Time to Settle" />
+        <item
+            android:id="@+id/nav_policy_sales_growth"
+            android:icon="@drawable/ic_graph"
+            android:title="Policy Sales Growth" />
+    </group>
+
+</menu>
