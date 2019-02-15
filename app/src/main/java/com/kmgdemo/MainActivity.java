@@ -1,5 +1,7 @@
 package com.kmgdemo;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.graphics.Color;
@@ -20,13 +22,16 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -35,10 +40,15 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.data.ScatterData;
+import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
@@ -96,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         findIds();
         implementEvents();
         createLayout();
+        showDialog(this, "All Graphs added here are fully customizable and can be modify as required.\n\nTo remove any graph: Just drag it outside from the draggable view and drop it.\n\n\nThank you :)");
     }
 
     private void findIds() {
@@ -166,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             chart.notifyDataSetChanged();
 
         } else {
-            set1 = new BarDataSet(values, "The year 2017");
+            set1 = new BarDataSet(values, "The year 2019");
 
             set1.setDrawIcons(false);
 
@@ -188,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int endColor5 = ContextCompat.getColor(this, android.R.color.holo_orange_dark);
 
             List<GradientColor> gradientColors = new ArrayList<>();
-            gradientColors.add(new GradientColor(startColor1, endColor1));
+            gradientColors.add(new GradientColor(startColor1, startColor1));
             gradientColors.add(new GradientColor(startColor2, endColor2));
             gradientColors.add(new GradientColor(startColor3, endColor3));
             gradientColors.add(new GradientColor(startColor4, endColor4));
@@ -378,7 +389,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setAvgCostPerClaimGraph() {
-
+        GraphView graph = new GraphView(this);
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
+                new DataPoint(0, 5),
+                new DataPoint(1, 7),
+                new DataPoint(2, 6),
+                new DataPoint(3, 8),
+                new DataPoint(4, 9)
+        });
+        series.setColor(Color.BLUE);
+        series.setBackgroundColor(Color.BLUE);
+        series.setDrawBackground(true);
+        series.setAnimated(true);
+        graph.addSeries(series);
+        series = new LineGraphSeries<DataPoint>(new DataPoint[]{
+                new DataPoint(0, 4),
+                new DataPoint(1, 6),
+                new DataPoint(2, 4),
+                new DataPoint(3, 5),
+                new DataPoint(4, 7)
+        });
+        series.setBackgroundColor(Color.GREEN);
+        series.setDrawBackground(true);
+        series.setColor(Color.GREEN);
+//        series.setDataPointsRadius(8);
+//        series.setDrawDataPoints(true);
+        series.setAnimated(true);
+        graph.addSeries(series);
+        series = new LineGraphSeries<DataPoint>(new DataPoint[]{
+                new DataPoint(0, 1),
+                new DataPoint(1, 5),
+                new DataPoint(2, 3),
+                new DataPoint(3, 2),
+                new DataPoint(4, 6)
+        });
+        series.setColor(Color.CYAN);
+        series.setBackgroundColor(Color.CYAN);
+        series.setAnimated(true);
+        series.setDrawBackground(true);
+        graph.addSeries(series);
+        graph.setTitle("Avg Cost Per Claim");
+        graph.setBackgroundColor(getResources().getColor(R.color.white));
+        graph.setTag(R.string.condition, GRAPH_TAG);
+        graph.setTag(GRAPH_VIEW_TAG);
+        graph.setLayoutParams(tvParams);
+        graph.setOnLongClickListener(this);
+        relativeLayout.addView(graph);
     }
 
     private void setCustomerSatisfactionGraph() {
@@ -390,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         pieChart.setDragDecelerationFrictionCoef(0.95f);
 
         SpannableString s = new SpannableString("Customer\nSatisfaction");
-        s.setSpan(new RelativeSizeSpan(1.5f), 0, 14, 0);
+//        s.setSpan(new RelativeSizeSpan(1.5f), 0, 14, 0);
         pieChart.setCenterText(s);
 
         pieChart.setExtraOffsets(20.f, 0.f, 20.f, 0.f);
@@ -491,21 +547,105 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setClaimRatioGraph() {
-        GraphView graph = new GraphView(this);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
+        CombinedChart combinedChart = new CombinedChart(this);
+        combinedChart.getDescription().setEnabled(false);
+        combinedChart.setBackgroundColor(Color.WHITE);
+        combinedChart.setDrawGridBackground(false);
+        combinedChart.setDrawBarShadow(false);
+        combinedChart.setHighlightFullBarEnabled(false);
+
+        // draw bars behind lines
+        combinedChart.setDrawOrder(new CombinedChart.DrawOrder[]{
+                CombinedChart.DrawOrder.BAR, CombinedChart.DrawOrder.LINE
         });
-        graph.addSeries(series);
-        graph.setBackgroundColor(getResources().getColor(R.color.white));
-        graph.setTag(R.string.condition, GRAPH_TAG);
-        graph.setTag(GRAPH_VIEW_TAG);
-        graph.setLayoutParams(tvParams);
-        graph.setOnLongClickListener(this);
-        relativeLayout.addView(graph);
+
+        Legend l = combinedChart.getLegend();
+        l.setWordWrapEnabled(true);
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        l.setDrawInside(false);
+
+        YAxis rightAxis = combinedChart.getAxisRight();
+        rightAxis.setDrawGridLines(false);
+        rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+
+        YAxis leftAxis = combinedChart.getAxisLeft();
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+
+        XAxis xAxis = combinedChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+        xAxis.setAxisMinimum(0f);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return months[(int) value % months.length];
+            }
+        });
+
+        // Line Chart View
+        CombinedData data = new CombinedData();
+        LineData d = new LineData();
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int index = 0; index < 4; index++)
+            entries.add(new Entry(index + 0.5f, getRandom(15, 5)));
+        LineDataSet set = new LineDataSet(entries, "Claim Ratio");
+        set.setColor(Color.rgb(0, 0, 0));
+        set.setLineWidth(2.5f);
+        set.setCircleColor(Color.rgb(0, 0, 0));
+        set.setCircleRadius(5f);
+        set.setFillColor(Color.rgb(0, 0, 0));
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setDrawValues(true);
+        set.setValueTextSize(10f);
+        set.setValueTextColor(Color.rgb(0, 0, 70));
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        d.addDataSet(set);
+        data.setData(d);
+
+        // Bar Chart View
+        ArrayList<BarEntry> entries1 = new ArrayList<>();
+        ArrayList<BarEntry> entries2 = new ArrayList<>();
+        for (int index = 0; index < 4; index++) {
+            entries1.add(new BarEntry(0, getRandom(25, 25)));
+
+            // stacked
+            entries2.add(new BarEntry(0, new float[]{getRandom(13, 12)/*, getRandom(13, 12)*/}));
+        }
+        BarDataSet set1 = new BarDataSet(entries1, "Bar 1");
+        set1.setColor(Color.rgb(60, 220, 78));
+        set1.setValueTextColor(Color.rgb(60, 220, 78));
+        set1.setValueTextSize(10f);
+        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
+        BarDataSet set2 = new BarDataSet(entries2, "");
+        set2.setStackLabels(new String[]{"Stack"/*, "Stack 2"*/});
+        set2.setColors(Color.rgb(61, 165, 255)/*, Color.rgb(23, 197, 255)*/);
+        set2.setValueTextColor(Color.rgb(61, 165, 255));
+        set2.setValueTextSize(10f);
+        set2.setAxisDependency(YAxis.AxisDependency.LEFT);
+        float groupSpace = 0.06f;
+        float barSpace = 0.02f; // x2 dataset
+        float barWidth = 0.45f; // x2 dataset
+        // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
+        BarData dd = new BarData(set1, set2);
+        dd.setBarWidth(barWidth);
+        // make this BarData object grouped
+        dd.groupBars(0, groupSpace, barSpace); // start at x = 0
+        data.setData(dd);
+
+        xAxis.setAxisMaximum(data.getXMax() + 0.25f);
+
+        combinedChart.setData(data);
+        combinedChart.invalidate();
+
+        combinedChart.setBackgroundColor(getResources().getColor(R.color.white));
+        combinedChart.setTag(R.string.condition, GRAPH_TAG);
+        combinedChart.setTag(GRAPH_VIEW_TAG);
+        combinedChart.setLayoutParams(tvParams);
+        combinedChart.setOnLongClickListener(this);
+        relativeLayout.addView(combinedChart);
     }
 
     private void setTopBrokersGraph() {
@@ -537,8 +677,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         chart.setTag(GRAPH_VIEW_TAG);
         chart.setLayoutParams(tvParams);
         chart.setOnLongClickListener(MainActivity.this);
-        relativeLayout.addView(chart);
         setData(10, 20);
+        relativeLayout.addView(chart);
     }
 
     private void setAverageTimeToSettleGraph() {
@@ -691,7 +831,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         pieChart.setEntryLabelColor(Color.WHITE);
         pieChart.setEntryLabelTextSize(12f);
 
-        pieChart.setBackgroundResource(R.drawable.graph_view_background);
+//        pieChart.setBackgroundResource(R.drawable.graph_view_background);
+        pieChart.setBackgroundResource(R.color.transparent);
         pieChart.setTag(R.string.condition, GRAPH_TAG);
         pieChart.setTag(GRAPH_VIEW_TAG);
         pieChart.setLayoutParams(tvParams);
@@ -799,8 +940,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         chart.setTag(GRAPH_VIEW_TAG);
         chart.setLayoutParams(tvParams);
         chart.setOnLongClickListener(MainActivity.this);
-        relativeLayout.addView(chart);
         setData(5, 5);
+        relativeLayout.addView(chart);
     }
 
     @Override
@@ -870,5 +1011,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         view.setVisibility(View.INVISIBLE);
         draggableView = view;
         return true;
+    }
+
+    protected float getRandom(float range, float start) {
+        return (float) (Math.random() * range) + start;
+    }
+
+    public void showDialog(Activity activity, String msg) {
+        final Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dailogue);
+
+        TextView text = (TextView) dialog.findViewById(R.id.text_dialog);
+        text.setText(msg);
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.btn_dialog);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.setCancelable(false);
+        dialog.show();
+
     }
 }
